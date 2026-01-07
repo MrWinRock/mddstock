@@ -12,8 +12,8 @@ export interface LoginRequest {
 export interface LoginResponse {
   status: number;
   success: boolean;
-  user_id?: number;
   message: string;
+  data?: { user_id: number };
 }
 
 // Inventory types
