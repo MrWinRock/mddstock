@@ -131,7 +131,7 @@ export default function Inventory() {
           <h1 className="text-3xl font-bold">Inventory</h1>
           <p className="text-muted-foreground">Manage your inventory items</p>
         </div>
-        <Button onClick={handleAddItem} className="gap-2">
+        <Button onClick={handleAddItem} className="gap-2 cursor-pointer">
           <Plus className="h-4 w-4" />
           Add Item
         </Button>
@@ -153,11 +153,14 @@ export default function Inventory() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Material Code</TableHead>
-              <TableHead>Item Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Unit</TableHead>
-              <TableHead className="text-right">Quantity</TableHead>
+              <TableHead>ลำดับ</TableHead>
+              <TableHead>รหัส Material</TableHead>
+              <TableHead>รายการ</TableHead>
+              <TableHead>ประเภท</TableHead>
+              <TableHead>หน่วยนับ</TableHead>
+              <TableHead className="text-right">รับเข้า</TableHead>
+              <TableHead className="text-right">เบิกจ่าย</TableHead>
+              <TableHead className="text-right">คงเหลือ</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -171,10 +174,17 @@ export default function Inventory() {
             ) : (
               filteredInventory.map((item) => (
                 <TableRow key={item.inventory_id}>
+                  <TableCell>{filteredInventory.indexOf(item) + 1}</TableCell>
                   <TableCell className="font-mono">{item.material_code}</TableCell>
                   <TableCell className="font-medium">{item.item}</TableCell>
                   <TableCell>{item.type}</TableCell>
                   <TableCell>{item.unit || "-"}</TableCell>
+                  <TableCell className="text-right">
+                    {item.item_in?.toLocaleString() || 0}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {item.item_out?.toLocaleString() || 0}
+                  </TableCell>
                   <TableCell className="text-right">
                     <span
                       className={cn(
@@ -191,7 +201,7 @@ export default function Inventory() {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleEditItem(item)}
-                        className="h-8 w-8"
+                        className="h-8 w-8 cursor-pointer"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -199,7 +209,7 @@ export default function Inventory() {
                         variant="ghost"
                         size="icon"
                         onClick={() => setDeleteItem(item)}
-                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        className="h-8 w-8 text-destructive hover:text-destructive cursor-pointer"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

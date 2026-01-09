@@ -15,7 +15,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,7 +25,7 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!username.trim() || !password.trim()) {
       toast({
         variant: "destructive",
@@ -38,9 +38,9 @@ export default function Login() {
     setIsLoading(true);
     try {
       const response = await authApi.login({ username, password });
-      
-      if (response.success && response.user_id) {
-        login({ user_id: response.user_id, username }, rememberMe);
+
+      if (response.success && response.data.user_id) {
+        login({ user_id: response.data.user_id, username }, rememberMe);
         toast({
           title: "Welcome back!",
           description: response.message,
