@@ -60,7 +60,7 @@ export default function Dashboard() {
     value,
   }));
 
-  const COLORS = ["hsl(var(--primary))", "hsl(var(--muted-foreground))", "hsl(var(--destructive))", "hsl(var(--accent-foreground))", "hsl(var(--ring))"];
+  const COLORS = ["#FF6B9D", "#4ECDC4", "#FFE66D", "#95E87E", "#FF8C42", "#A78BFA", "#67E8F9"];
 
   if (isLoading) {
     return (
@@ -154,9 +154,28 @@ export default function Dashboard() {
                     data={pieData}
                     cx="50%"
                     cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                    outerRadius={100}
+                    labelLine={true}
+                    label={({ name, percent, x, y, midAngle }) => {
+                      const RADIAN = Math.PI / 180;
+                      const radius = 130;
+                      const cx2 = 0;
+                      const cy2 = 0;
+                      const labelX = x + Math.cos(-midAngle * RADIAN) * 10;
+                      const labelY = y + Math.sin(-midAngle * RADIAN) * 10;
+                      return (
+                        <text
+                          x={labelX}
+                          y={labelY}
+                          fill="#FFFFFF"
+                          textAnchor={labelX > (cx2 || 0) ? "start" : "end"}
+                          dominantBaseline="central"
+                          className="text-xs"
+                        >
+                          {`${name} (${(percent * 100).toFixed(0)}%)`}
+                        </text>
+                      );
+                    }}
+                    outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
                   >
@@ -183,7 +202,7 @@ export default function Dashboard() {
       </div>
 
       {/* Low Stock Alert Table */}
-      {lowStockItems.length > 0 && (
+      {/* {lowStockItems.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -213,7 +232,7 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
-      )}
+      )} */}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,21 +14,21 @@ export function CameraScanner({ onScan, isActive, onToggle }: CameraScannerProps
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const [error, setError] = useState<string>("");
 
-  useEffect(() => {
-    if (isActive) {
-      startScanner();
-    } else {
-      stopScanner();
+  const stopScanner = useCallback(async () => {
+    if (scannerRef.current) {
+      try {
+        await scannerRef.current.stop();
+        scannerRef.current = null;
+      } catch {
+        // Ignore stop errors
+      }
     }
+  }, []);
 
-    return () => {
-      stopScanner();
-    };
-  }, [isActive]);
-
-  const startScanner = async () => {
+  const startScanner = useCallback(async () => {
+    // Yield to break synchronous chain - any setState after this is async
+    await Promise.resolve();
     try {
-      setError("");
       const scanner = new Html5Qrcode("camera-scanner");
       scannerRef.current = scanner;
 
@@ -50,25 +50,37 @@ export function CameraScanner({ onScan, isActive, onToggle }: CameraScannerProps
       setError(err instanceof Error ? err.message : "Failed to start camera");
       onToggle();
     }
-  };
+  }, [onScan, onToggle]);
 
-  const stopScanner = async () => {
-    if (scannerRef.current) {
-      try {
-        await scannerRef.current.stop();
-        scannerRef.current = null;
-      } catch {
-        // Ignore stop errors
-      }
+  // Handle toggle with error clearing - keeps state changes in event handlers
+  const handleToggle = useCallback(() => {
+    if (!isActive) {
+      setError(""); // Clear error when activating (user action, not effect)
     }
-  };
+    onToggle();
+  }, [isActive, onToggle]);
+
+  useEffect(() => {
+    if (isActive) {
+      // Schedule async to avoid synchronous setState in effect body
+      queueMicrotask(() => {
+        startScanner();
+      });
+    } else {
+      stopScanner();
+    }
+
+    return () => {
+      stopScanner();
+    };
+  }, [isActive, startScanner, stopScanner]);
 
   return (
     <Card>
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-medium">Camera Scanner</h3>
-          <Button variant="outline" size="sm" onClick={onToggle} className="gap-2">
+          <Button variant="outline" size="sm" onClick={handleToggle} className="gap-2">
             {isActive ? (
               <>
                 <CameraOff className="h-4 w-4" />

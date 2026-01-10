@@ -3,6 +3,7 @@ import { inventoryApi } from "@/lib/api";
 import type { InventoryItemWithQuantity, AddInventoryRequest, UpdateInventoryRequest } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -21,9 +22,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { InventoryDialog } from "@/components/inventory/InventoryDialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const LOW_STOCK_THRESHOLD = 10;
@@ -36,6 +45,11 @@ export default function Inventory() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItemWithQuantity | null>(null);
   const [deleteItem, setDeleteItem] = useState<InventoryItemWithQuantity | null>(null);
+  const [scanDialogOpen, setScanDialogOpen] = useState(false);
+  const [scanItem, setScanItem] = useState<InventoryItemWithQuantity | null>(null);
+  const [scanType, setScanType] = useState<"in" | "out">("in");
+  const [scanAmount, setScanAmount] = useState("");
+  const [isScanLoading, setIsScanLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -113,6 +127,47 @@ export default function Inventory() {
       });
     } finally {
       setDeleteItem(null);
+    }
+  };
+
+  const handleOpenScanDialog = (item: InventoryItemWithQuantity, type: "in" | "out") => {
+    setScanItem(item);
+    setScanType(type);
+    setScanAmount("");
+    setScanDialogOpen(true);
+  };
+
+  const handleScanSubmit = async () => {
+    if (!scanItem || !scanAmount) return;
+
+    const amount = parseInt(scanAmount, 10);
+    if (isNaN(amount) || amount <= 0) {
+      toast({
+        variant: "destructive",
+        title: "Invalid Amount",
+        description: "Please enter a valid positive number",
+      });
+      return;
+    }
+
+    setIsScanLoading(true);
+    try {
+      const scanFn = scanType === "in" ? inventoryApi.scanIn : inventoryApi.scanOut;
+      await scanFn({ inventory_id: scanItem.inventory_id, amount });
+      toast({
+        title: "Success",
+        description: `${scanType === "in" ? "Item In" : "Item Out"}: ${amount} ${scanItem.unit || "units"} of ${scanItem.item}`,
+      });
+      setScanDialogOpen(false);
+      fetchInventory();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : `Failed to ${scanType === "in" ? "add" : "remove"} items`,
+      });
+    } finally {
+      setIsScanLoading(false);
     }
   };
 
@@ -200,8 +255,27 @@ export default function Inventory() {
                       <Button
                         variant="ghost"
                         size="icon"
+                        onClick={() => handleOpenScanDialog(item, "in")}
+                        className="h-8 w-8 cursor-pointer text-green-600 hover:text-green-700"
+                        title="Item In"
+                      >
+                        <ArrowDownToLine className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleOpenScanDialog(item, "out")}
+                        className="h-8 w-8 cursor-pointer text-orange-600 hover:text-orange-700"
+                        title="Item Out"
+                      >
+                        <ArrowUpFromLine className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => handleEditItem(item)}
                         className="h-8 w-8 cursor-pointer"
+                        title="Edit"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -210,6 +284,7 @@ export default function Inventory() {
                         size="icon"
                         onClick={() => setDeleteItem(item)}
                         className="h-8 w-8 text-destructive hover:text-destructive cursor-pointer"
+                        title="Delete"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -247,6 +322,50 @@ export default function Inventory() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Item In/Out Dialog */}
+      <Dialog open={scanDialogOpen} onOpenChange={setScanDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle className={scanType === "in" ? "text-green-600" : "text-orange-600"}>
+              {scanType === "in" ? "รับเข้า (Item In)" : "เบิกจ่าย (Item Out)"}
+            </DialogTitle>
+            <DialogDescription>
+              {scanItem?.item} ({scanItem?.material_code})
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Label htmlFor="scan-amount">จำนวน ({scanItem?.unit || "units"})</Label>
+            <Input
+              id="scan-amount"
+              type="number"
+              min="1"
+              value={scanAmount}
+              onChange={(e) => setScanAmount(e.target.value)}
+              placeholder="Enter amount"
+              className="mt-2"
+              autoFocus
+            />
+            {scanType === "out" && scanItem && (
+              <p className="mt-2 text-sm text-muted-foreground">
+                คงเหลือ: {scanItem.item_quantity?.toLocaleString() || 0} {scanItem.unit || "units"}
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setScanDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleScanSubmit}
+              disabled={isScanLoading || !scanAmount}
+              className={scanType === "in" ? "bg-green-600 hover:bg-green-700" : "bg-orange-600 hover:bg-orange-700"}
+            >
+              {isScanLoading ? "Processing..." : scanType === "in" ? "รับเข้า" : "เบิกจ่าย"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
