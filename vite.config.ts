@@ -10,6 +10,8 @@ export default defineConfig(({ mode }) => {
   const apiTarget = env.VITE_API_PROXY_TARGET || "http://localhost:3000";
 
   return {
+    // Set base path for GitHub Pages (repo name)
+    base: mode === "production" ? "/measim/" : "/",
     server: {
       host: "::",
       port: 5173,
@@ -25,6 +27,9 @@ export default defineConfig(({ mode }) => {
       react(),
       mode === "development" && componentTagger(),
     ].filter(Boolean),
+    build: {
+      outDir: "docs",
+    },
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
