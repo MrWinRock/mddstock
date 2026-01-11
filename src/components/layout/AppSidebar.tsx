@@ -76,7 +76,7 @@ export function AppSidebar() {
             variant="outline"
             size="sm"
             onClick={handleLogout}
-            className="w-full justify-start gap-2"
+            className="w-full justify-start gap-2 cursor-pointer"
           >
             <LogOut className="h-4 w-4" />
             Sign Out
