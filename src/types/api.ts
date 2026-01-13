@@ -67,10 +67,14 @@ export interface ScanResponse {
 export interface Log {
   log_id: number;
   inventory_id: number;
-  item_in?: boolean;
-  item_out?: boolean;
+  is_item_in?: boolean;
+  is_item_out?: boolean;
   amount: number;
   create_time?: string;
+}
+
+export interface GetLogRequest {
+  inventory_id: number;
 }
 
 // API Response types

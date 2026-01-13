@@ -31,11 +31,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { InventoryDialog } from "@/components/inventory/InventoryDialog";
+import { HistoryDialog } from "@/components/inventory/HistoryDialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Search, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ArrowDownToLine, ArrowUpFromLine, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const LOW_STOCK_THRESHOLD = 10;
+// const LOW_STOCK_THRESHOLD = 10;
 
 export default function Inventory() {
   const [inventory, setInventory] = useState<InventoryItemWithQuantity[]>([]);
@@ -50,6 +51,8 @@ export default function Inventory() {
   const [scanType, setScanType] = useState<"in" | "out">("in");
   const [scanAmount, setScanAmount] = useState("");
   const [isScanLoading, setIsScanLoading] = useState(false);
+  const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
+  const [historyItem, setHistoryItem] = useState<InventoryItemWithQuantity | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -171,6 +174,11 @@ export default function Inventory() {
     }
   };
 
+  const handleOpenHistory = (item: InventoryItemWithQuantity) => {
+    setHistoryItem(item);
+    setHistoryDialogOpen(true);
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -242,9 +250,13 @@ export default function Inventory() {
                   </TableCell>
                   <TableCell className="text-right">
                     <span
+                      // className={cn(
+                      //   "font-medium",
+                      //   (item.item_quantity || 0) < LOW_STOCK_THRESHOLD && "text-destructive"
+                      // )}
                       className={cn(
                         "font-medium",
-                        (item.item_quantity || 0) < LOW_STOCK_THRESHOLD && "text-destructive"
+                        (item.item_quantity && "font-bold")
                       )}
                     >
                       {item.item_quantity?.toLocaleString() || 0}
@@ -269,6 +281,15 @@ export default function Inventory() {
                         title="Item Out"
                       >
                         <ArrowUpFromLine className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleOpenHistory(item)}
+                        className="h-8 w-8 cursor-pointer text-blue-600 hover:text-blue-700"
+                        title="History"
+                      >
+                        <History className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
@@ -366,6 +387,13 @@ export default function Inventory() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* History Dialog */}
+      <HistoryDialog
+        open={historyDialogOpen}
+        onOpenChange={setHistoryDialogOpen}
+        item={historyItem}
+      />
     </div>
   );
 }
