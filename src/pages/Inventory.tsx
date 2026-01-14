@@ -33,7 +33,7 @@ import {
 import { InventoryDialog } from "@/components/inventory/InventoryDialog";
 import { HistoryDialog } from "@/components/inventory/HistoryDialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Search, ArrowDownToLine, ArrowUpFromLine, History } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ArrowDownToLine, ArrowUpFromLine, History, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const LOW_STOCK_THRESHOLD = 30;
@@ -194,10 +194,16 @@ export default function Inventory() {
           <h1 className="text-3xl font-bold">Inventory</h1>
           <p className="text-muted-foreground">Manage your inventory items</p>
         </div>
-        <Button onClick={handleAddItem} className="gap-2 cursor-pointer">
-          <Plus className="h-4 w-4" />
-          Add Item
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={fetchInventory} className="gap-2 cursor-pointer">
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </Button>
+          <Button onClick={handleAddItem} className="gap-2 cursor-pointer">
+            <Plus className="h-4 w-4" />
+            Add Item
+          </Button>
+        </div>
       </div>
 
       {/* Search */}
