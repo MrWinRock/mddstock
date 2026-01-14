@@ -36,7 +36,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Search, ArrowDownToLine, ArrowUpFromLine, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// const LOW_STOCK_THRESHOLD = 10;
+const LOW_STOCK_THRESHOLD = 30;
 
 export default function Inventory() {
   const [inventory, setInventory] = useState<InventoryItemWithQuantity[]>([]);
@@ -235,84 +235,83 @@ export default function Inventory() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredInventory.map((item) => (
-                <TableRow key={item.inventory_id}>
-                  <TableCell>{filteredInventory.indexOf(item) + 1}</TableCell>
-                  <TableCell className="font-mono">{item.material_code}</TableCell>
-                  <TableCell className="font-medium">{item.item}</TableCell>
-                  <TableCell>{item.type}</TableCell>
-                  <TableCell>{item.unit || "-"}</TableCell>
-                  <TableCell className="text-right">
-                    {item.item_in?.toLocaleString() || 0}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {item.item_out?.toLocaleString() || 0}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <span
-                      // className={cn(
-                      //   "font-medium",
-                      //   (item.item_quantity || 0) < LOW_STOCK_THRESHOLD && "text-destructive"
-                      // )}
-                      className={cn(
-                        "font-medium",
-                        (item.item_quantity && "font-bold")
-                      )}
-                    >
-                      {item.item_quantity?.toLocaleString() || 0}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleOpenScanDialog(item, "in")}
-                        className="h-8 w-8 cursor-pointer text-green-600 hover:text-green-700"
-                        title="Item In"
+              filteredInventory.map((item) => {
+                const isLowStock = (item.item_quantity || 0) < LOW_STOCK_THRESHOLD;
+                return (
+                  <TableRow key={item.inventory_id}>
+                    <TableCell className={cn(isLowStock && "text-destructive")}>{filteredInventory.indexOf(item) + 1}</TableCell>
+                    <TableCell className={cn("font-mono", isLowStock && "text-destructive")}>{item.material_code}</TableCell>
+                    <TableCell className={cn("font-medium", isLowStock && "text-destructive")}>{item.item}</TableCell>
+                    <TableCell className={cn(isLowStock && "text-destructive")}>{item.type}</TableCell>
+                    <TableCell className={cn(isLowStock && "text-destructive")}>{item.unit || "-"}</TableCell>
+                    <TableCell className={cn("text-right", isLowStock && "text-destructive")}>
+                      {item.item_in?.toLocaleString() || 0}
+                    </TableCell>
+                    <TableCell className={cn("text-right", isLowStock && "text-destructive")}>
+                      {item.item_out?.toLocaleString() || 0}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <span
+                        className={cn(
+                          "font-bold",
+                          (item.item_quantity || 0) < LOW_STOCK_THRESHOLD && "text-destructive"
+                        )}
                       >
-                        <ArrowDownToLine className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleOpenScanDialog(item, "out")}
-                        className="h-8 w-8 cursor-pointer text-orange-600 hover:text-orange-700"
-                        title="Item Out"
-                      >
-                        <ArrowUpFromLine className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleOpenHistory(item)}
-                        className="h-8 w-8 cursor-pointer text-blue-600 hover:text-blue-700"
-                        title="History"
-                      >
-                        <History className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEditItem(item)}
-                        className="h-8 w-8 cursor-pointer"
-                        title="Edit"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeleteItem(item)}
-                        className="h-8 w-8 text-destructive hover:text-destructive cursor-pointer"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
+                        {item.item_quantity?.toLocaleString() || 0}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleOpenScanDialog(item, "in")}
+                          className="h-8 w-8 cursor-pointer text-green-600 hover:text-green-700"
+                          title="Item In"
+                        >
+                          <ArrowDownToLine className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleOpenScanDialog(item, "out")}
+                          className="h-8 w-8 cursor-pointer text-orange-600 hover:text-orange-700"
+                          title="Item Out"
+                        >
+                          <ArrowUpFromLine className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleOpenHistory(item)}
+                          className="h-8 w-8 cursor-pointer text-blue-600 hover:text-blue-700"
+                          title="History"
+                        >
+                          <History className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditItem(item)}
+                          className="h-8 w-8 cursor-pointer"
+                          title="Edit"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setDeleteItem(item)}
+                          className="h-8 w-8 text-destructive hover:text-destructive cursor-pointer"
+                          title="Delete"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )
+              })
             )}
           </TableBody>
         </Table>

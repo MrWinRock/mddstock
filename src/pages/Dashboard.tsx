@@ -166,7 +166,7 @@ export default function Dashboard() {
                         <text
                           x={labelX}
                           y={labelY}
-                          fill="#FFFFFF"
+                          fill="#000000"
                           textAnchor={labelX > (cx2 || 0) ? "start" : "end"}
                           dominantBaseline="central"
                           className="text-xs"
@@ -202,7 +202,7 @@ export default function Dashboard() {
       </div>
 
       {/* Low Stock Alert Table */}
-      {/* {lowStockItems.length > 0 && (
+      {lowStockItems.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -232,7 +232,7 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
-      )} */}
+      )}
     </div>
   );
 }
