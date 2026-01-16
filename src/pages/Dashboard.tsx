@@ -7,7 +7,7 @@ import { Package, TrendingUp, TrendingDown, AlertTriangle, Boxes } from "lucide-
 import { useToast } from "@/hooks/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
-const LOW_STOCK_THRESHOLD = 10;
+const LOW_STOCK_THRESHOLD = 30;
 
 export default function Dashboard() {
   const [inventory, setInventory] = useState<InventoryItemWithQuantity[]>([]);
