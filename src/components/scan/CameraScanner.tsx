@@ -38,19 +38,22 @@ export function CameraScanner({ onScan, isActive, onToggle }: CameraScannerProps
           fps: 10,
           qrbox: { width: 250, height: 250 },
         },
-        (decodedText) => {
+        async (decodedText) => {
           onScan(decodedText);
-          // Don't stop scanner, allow continuous scanning
+          // Stop camera after successful scan
+          await stopScanner();
+          onToggle();
         },
         () => {
           // Ignore errors during scanning
         }
       );
     } catch (err) {
+      
       setError(err instanceof Error ? err.message : "Failed to start camera");
       onToggle();
     }
-  }, [onScan, onToggle]);
+  }, [onScan, onToggle, stopScanner]);
 
   // Handle toggle with error clearing - keeps state changes in event handlers
   const handleToggle = useCallback(() => {
