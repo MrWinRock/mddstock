@@ -1,7 +1,10 @@
 // User types
+export type UserRole = "admin" | "user";
+
 export interface User {
   user_id: number;
   username: string;
+  role: UserRole;
 }
 
 export interface LoginRequest {
@@ -13,7 +16,7 @@ export interface LoginResponse {
   status: number;
   success: boolean;
   message: string;
-  data?: { user_id: number };
+  data?: { user_id: number; role: UserRole };
 }
 
 // Inventory types

@@ -2,6 +2,7 @@ import { LayoutDashboard, Package, ScanLine, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import type { UserRole } from "@/types/api";
 import {
   Sidebar,
   SidebarContent,
@@ -16,9 +17,16 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 
-const navItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Inventory", url: "/inventory", icon: Package },
+interface NavItem {
+  title: string;
+  url: string;
+  icon: React.ComponentType<{ className?: string }>;
+  allowedRoles?: UserRole[];
+}
+
+const navItems: NavItem[] = [
+  { title: "Dashboard", url: "/", icon: LayoutDashboard, allowedRoles: ["admin"] },
+  { title: "Inventory", url: "/inventory", icon: Package, allowedRoles: ["admin"] },
   { title: "Scan", url: "/scan", icon: ScanLine },
 ];
 
@@ -30,6 +38,12 @@ export function AppSidebar() {
     logout();
     navigate("/login");
   };
+
+  // Filter nav items based on user role
+  const filteredNavItems = navItems.filter((item) => {
+    if (!item.allowedRoles) return true; // No restriction, show to all
+    return user && item.allowedRoles.includes(user.role);
+  });
 
   return (
     <Sidebar>
@@ -47,7 +61,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => (
+              {filteredNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink

@@ -39,13 +39,16 @@ export default function Login() {
     try {
       const response = await authApi.login({ username, password });
 
-      if (response.success && response.data.user_id) {
-        login({ user_id: response.data.user_id, username }, rememberMe);
+      if (response.success && response.data?.user_id) {
+        const role = response.data.role || "user";
+        login({ user_id: response.data.user_id, username, role }, rememberMe);
         toast({
           title: "Welcome back!",
           description: response.message,
         });
-        navigate(from, { replace: true });
+        // Redirect based on role: admin goes to dashboard, user goes to scan
+        const redirectTo = role === "admin" ? from : "/scan";
+        navigate(redirectTo, { replace: true });
       } else {
         toast({
           variant: "destructive",
