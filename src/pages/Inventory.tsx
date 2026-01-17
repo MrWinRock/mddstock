@@ -33,7 +33,7 @@ import {
 import { InventoryDialog } from "@/components/inventory/InventoryDialog";
 import { HistoryDialog } from "@/components/inventory/HistoryDialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Search, ArrowDownToLine, ArrowUpFromLine, History, RefreshCw } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ArrowDownToLine, ArrowUpFromLine, History, RefreshCw, FileSpreadsheet } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const LOW_STOCK_THRESHOLD = 30;
@@ -53,6 +53,7 @@ export default function Inventory() {
   const [isScanLoading, setIsScanLoading] = useState(false);
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
   const [historyItem, setHistoryItem] = useState<InventoryItemWithQuantity | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -179,6 +180,22 @@ export default function Inventory() {
     setHistoryDialogOpen(true);
   };
 
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      await inventoryApi.exportExcel();
+      toast({ title: "Success", description: "Inventory exported successfully" });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to export inventory",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -198,6 +215,14 @@ export default function Inventory() {
           <Button variant="outline" onClick={fetchInventory} className="gap-2 cursor-pointer">
             <RefreshCw className="h-4 w-4" />
             Refresh
+          </Button>
+          <Button 
+            onClick={handleExport} 
+            disabled={isExporting}
+            className="gap-2 cursor-pointer bg-green-600 hover:bg-green-700 text-white"
+          >
+            <FileSpreadsheet className="h-4 w-4" />
+            {isExporting ? "Exporting..." : "Export"}
           </Button>
           <Button onClick={handleAddItem} className="gap-2 cursor-pointer">
             <Plus className="h-4 w-4" />

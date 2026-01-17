@@ -99,4 +99,23 @@ export const inventoryApi = {
       params: data,
     });
   },
+
+  exportExcel: async (): Promise<void> => {
+    const response = await apiClient.get("/inventory/export", {
+      responseType: "blob",
+    });
+    
+    // Create download link
+    const blob = new Blob([response.data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `inventory_${new Date().toISOString().split("T")[0]}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  },
 };
