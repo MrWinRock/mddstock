@@ -74,7 +74,7 @@ export default function Login() {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary">
             <Package className="h-6 w-6 text-primary-foreground" />
           </div>
-          <CardTitle className="text-2xl font-bold">MEASIM</CardTitle>
+          <CardTitle className="text-2xl font-bold">MDD STOCK</CardTitle>
           <CardDescription>
             Medical Equipment and Supply Inventory Management
           </CardDescription>

@@ -52,7 +52,7 @@ export function AppSidebar() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
             <Package className="h-4 w-4 text-primary-foreground" />
           </div>
-          <span className="font-semibold text-sidebar-foreground">MEASIM</span>
+          <span className="font-semibold text-sidebar-foreground">MDD STOCK</span>
         </div>
       </SidebarHeader>
 

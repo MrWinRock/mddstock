@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     // Set base path for GitHub Pages (repo name)
-    base: mode === "production" || mode === "github" ? "/measim/" : "/",
+    base: mode === "production" || mode === "github" ? "/mdd-stock/" : "/",
     server: {
       host: "::",
       port: 5173,
